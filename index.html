@@ -3,19 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <title>Baixa Tudo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       background: #111;
       color: #eee;
-      padding: 2rem;
       max-width: 800px;
-      margin: auto;
+      margin: 2rem auto;
+      padding: 0 1rem;
     }
     h1 {
       text-align: center;
       color: #00ff88;
+    }
+    p.notice {
+      text-align: center;
+      color: #00ff88;
+      font-weight: bold;
+      margin-bottom: 1rem;
     }
     form {
       background: #222;
@@ -26,7 +32,7 @@
     input, select, button {
       width: 100%;
       margin-top: 1rem;
-      padding: 0.6rem;
+      padding: 0.7rem;
       border-radius: 8px;
       border: none;
       font-size: 1rem;
@@ -35,6 +41,11 @@
       background: #00ff88;
       color: #000;
       cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background: #00cc66;
     }
     .drag-drop-area {
       border: 3px dashed #00ff88;
@@ -45,6 +56,7 @@
       font-weight: bold;
       margin-top: 1rem;
       cursor: pointer;
+      user-select: none;
       transition: background-color 0.3s;
     }
     .drag-drop-area.dragover {
@@ -53,23 +65,24 @@
     .progress-container {
       margin-top: 1rem;
     }
-    .progress-bar {
-      height: 20px;
-      background: #00ff88;
-      width: 0%;
-      border-radius: 10px;
-      transition: width 0.3s ease;
-      margin-bottom: 0.5rem;
-    }
     .progress-wrapper {
       background: #333;
       border-radius: 10px;
       margin-bottom: 0.6rem;
       padding: 3px;
     }
+    .progress-bar {
+      height: 20px;
+      background: #00ff88;
+      width: 0%;
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
     .progress-label {
       font-size: 0.9rem;
       margin-bottom: 0.3rem;
+      color: #00ff88;
+      font-weight: bold;
     }
     .search-box {
       background: #1a1a1a;
@@ -77,20 +90,37 @@
       border-radius: 10px;
       margin-bottom: 2rem;
     }
+    .search-box input, .search-box select {
+      width: calc(100% - 1rem);
+      display: inline-block;
+      margin-right: 0.5rem;
+      margin-top: 0.3rem;
+      margin-bottom: 0.3rem;
+    }
     .file-item {
       background: #222;
       padding: 0.8rem;
       margin-bottom: 0.5rem;
       border-radius: 8px;
+      word-break: break-word;
     }
     a {
       color: #00ff88;
       text-decoration: none;
+      font-weight: bold;
+    }
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
+
   <h1>📦 Baixa Tudo</h1>
+
+  <p class="notice">
+    ⚠️ Pessoal, só mandem arquivos até 2GB, para não travar tudo!
+  </p>
 
   <form id="uploadForm">
     <label>Enviar ficheiros:</label>
@@ -138,10 +168,8 @@
   const status = document.getElementById("status");
   const progressContainer = document.getElementById("progressContainer");
 
-  // Click na área para abrir seletor de ficheiros
   dragDropArea.addEventListener("click", () => fileInput.click());
 
-  // Drag & drop estilos
   dragDropArea.addEventListener("dragover", (e) => {
     e.preventDefault();
     dragDropArea.classList.add("dragover");
@@ -155,7 +183,6 @@
     dragDropArea.classList.remove("dragover");
     if (e.dataTransfer.files.length) {
       fileInput.files = e.dataTransfer.files;
-      // Opcional: mostrar nomes
       dragDropArea.textContent = e.dataTransfer.files.length + " ficheiro(s) selecionado(s)";
     }
   });
@@ -168,6 +195,14 @@
     if (files.length === 0) {
       status.textContent = "❗ Por favor, selecione pelo menos um ficheiro.";
       return;
+    }
+
+    // Check size limit 2GB (2 * 1024 * 1024 * 1024 bytes)
+    for (const file of files) {
+      if (file.size > 2 * 1024 * 1024 * 1024) {
+        status.textContent = `❌ O ficheiro "${file.name}" excede o limite de 2GB.`;
+        return;
+      }
     }
 
     status.textContent = `📤 A enviar ${files.length} ficheiro(s)...`;
@@ -222,28 +257,45 @@
     fileInput.value = "";
     dragDropArea.textContent = "Arraste e largue ficheiros aqui ou clique para escolher";
     progressContainer.innerHTML = "";
-    fetchFiles();
+    fetchFiles(true);
   });
 
-  async function fetchFiles() {
-    const res = await fetch(API_BASE + "/catalog");
-    const files = await res.json();
-    const container = document.getElementById("fileList");
+  let currentPage = 1;
+  const pageSize = 10;
+  let allFiles = [];
+
+  async function fetchFiles(reset = true) {
+    if (reset) {
+      currentPage = 1;
+      document.getElementById("fileList").innerHTML = "<p>🕒 A carregar ficheiros...</p>";
+    }
+
+    if (allFiles.length === 0 || reset) {
+      const res = await fetch(API_BASE + "/catalog");
+      allFiles = await res.json();
+    }
+
     const searchTerm = document.getElementById("searchInput").value.toLowerCase();
     const selectedCategory = document.getElementById("categoryFilter").value;
 
-    container.innerHTML = "";
-    const filtered = files.filter(file =>
+    const filtered = allFiles.filter(file =>
       (!searchTerm || file.file_name.toLowerCase().includes(searchTerm)) &&
       (!selectedCategory || file.categoria === selectedCategory)
     );
 
-    if (filtered.length === 0) {
+    const start = 0;
+    const end = currentPage * pageSize;
+    const paginated = filtered.slice(start, end);
+
+    const container = document.getElementById("fileList");
+    container.innerHTML = "";
+
+    if (paginated.length === 0) {
       container.innerHTML = "<p>⚠️ Nenhum ficheiro encontrado.</p>";
       return;
     }
 
-    for (const file of filtered.reverse()) {
+    for (const file of paginated.reverse()) {
       try {
         const res = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${file.file_id}`);
         const data = await res.json();
@@ -254,15 +306,27 @@
         div.innerHTML = `<strong>${file.categoria}</strong><br><a href="${finalURL}" target="_blank" rel="noopener noreferrer">${file.file_name}</a>`;
         container.appendChild(div);
       } catch {
-        // ignorar erro no ficheiro
+        // ignorar erro
       }
+    }
+
+    if (paginated.length < filtered.length) {
+      let btn = document.createElement("button");
+      btn.textContent = "Mostrar mais";
+      btn.style = "display: block; margin: 1rem auto; padding: 0.5rem 1rem; background: #00ff88; border:none; border-radius:8px; cursor:pointer;";
+      btn.onclick = () => {
+        currentPage++;
+        fetchFiles(false);
+      };
+      container.appendChild(btn);
     }
   }
 
-  document.getElementById("searchInput").addEventListener("input", fetchFiles);
-  document.getElementById("categoryFilter").addEventListener("change", fetchFiles);
+  document.getElementById("searchInput").addEventListener("input", () => fetchFiles(true));
+  document.getElementById("categoryFilter").addEventListener("change", () => fetchFiles(true));
 
   fetchFiles();
 </script>
+
 </body>
 </html>
