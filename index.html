@@ -2,16 +2,135 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Baixa Tudo</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="style.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #f5f5f5;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      color: #00ff88;
+    }
+    form {
+      margin: 2rem auto;
+      background: #222;
+      padding: 1rem;
+      border-radius: 12px;
+      max-width: 400px;
+    }
+    input, select, button {
+      display: block;
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+    button {
+      background: #00ff88;
+      color: #000;
+      cursor: pointer;
+    }
+    .file-list {
+      margin-top: 2rem;
+    }
+    .file-item {
+      margin: 0.5rem 0;
+    }
+    a {
+      color: #00ff88;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📥 Baixa Tudo</h1>
-    <input type="search" id="search" placeholder="Pesquisa por nome…" />
-    <ul id="fileList"></ul>
+  <h1>📦 Baixa Tudo</h1>
+  <p>Ficheiros partilhados no canal <strong>@baixatudo</strong></p>
+
+  <form id="uploadForm">
+    <label>Escolher ficheiro:</label>
+    <input type="file" name="file" required />
+
+    <label>Categoria:</label>
+    <select name="categoria">
+      <option value="🎬 Vídeo">🎬 Vídeo</option>
+      <option value="🎮 Jogo">🎮 Jogo</option>
+      <option value="📚 Livro">📚 Livro</option>
+      <option value="📱 Aplicação">📱 Aplicação</option>
+      <option value="📁 Outro" selected>📁 Outro</option>
+    </select>
+
+    <button type="submit">Enviar para Telegram</button>
+    <p id="status"></p>
+  </form>
+
+  <div class="file-list" id="fileList">
+    <h2>Ficheiros recentes</h2>
+    <p>🕒 A carregar...</p>
   </div>
-  <script src="script.js"></script>
+
+  <script>
+    const uploadForm = document.getElementById('uploadForm');
+    const statusText = document.getElementById('status');
+
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(uploadForm);
+
+      statusText.textContent = "📤 A enviar ficheiro...";
+      const res = await fetch("https://baixatudo-api.onrender.com/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      const json = await res.json();
+      if (res.ok) {
+        statusText.textContent = "✅ Enviado com sucesso!";
+      } else {
+        statusText.textContent = "❌ Erro ao enviar: " + json.error;
+      }
+
+      uploadForm.reset();
+    });
+
+    // Listar ficheiros do Telegram
+    const fileList = document.getElementById("fileList");
+    async function fetchFiles() {
+      try {
+        const res = await fetch("https://api.telegram.org/bot8071739217:AAEvB00Ux-YK3bjr7jvLBLX14Xvv61eDxDM/getUpdates");
+        const data = await res.json();
+        fileList.innerHTML = '<h2>Ficheiros recentes</h2>';
+
+        const docs = data.result
+          .map(update => update.message?.document)
+          .filter(Boolean)
+          .reverse();
+
+        if (docs.length === 0) {
+          fileList.innerHTML += "<p>⚠️ Nenhum ficheiro encontrado.</p>";
+          return;
+        }
+
+        for (const doc of docs) {
+          const name = doc.file_name;
+          const fileId = doc.file_id;
+          const linkRes = await fetch(`https://api.telegram.org/bot8071739217:AAEvB00Ux-YK3bjr7jvLBLX14Xvv61eDxDM/getFile?file_id=${fileId}`);
+          const fileData = await linkRes.json();
+          const filePath = fileData.result.file_path;
+          const downloadUrl = `https://api.telegram.org/file/bot8071739217:AAEvB00Ux-YK3bjr7jvLBLX14Xvv61eDxDM/${filePath}`;
+          fileList.innerHTML += `<div class="file-item"><a href="${downloadUrl}" target="_blank">${name}</a></div>`;
+        }
+      } catch (err) {
+        fileList.innerHTML += "<p>Erro ao carregar ficheiros.</p>";
+      }
+    }
+
+    fetchFiles();
+  </script>
 </body>
 </html>
