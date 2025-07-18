@@ -58,8 +58,8 @@
   <h1>📦 Baixa Tudo</h1>
 
   <form id="uploadForm">
-    <label>Enviar novo ficheiro:</label>
-    <input type="file" name="file" required />
+    <label>Enviar ficheiros:</label>
+    <input type="file" name="file" required multiple />
     <select name="categoria">
       <option value="🎬 Vídeo">🎬 Vídeo</option>
       <option value="🎮 Jogo">🎮 Jogo</option>
@@ -67,7 +67,7 @@
       <option value="📱 Aplicação">📱 Aplicação</option>
       <option value="📁 Outro">📁 Outro</option>
     </select>
-    <button type="submit">Enviar para Telegram</button>
+    <button type="submit">Enviar</button>
     <p id="status"></p>
   </form>
 
@@ -93,21 +93,37 @@
 
     document.getElementById("uploadForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const formData = new FormData(e.target);
+      const input = e.target.querySelector('input[name="file"]');
+      const files = input.files;
+      const categoria = e.target.querySelector('select[name="categoria"]').value;
       const status = document.getElementById("status");
-      status.textContent = "📤 A enviar...";
-      try {
-        const res = await fetch(API_BASE + "/upload", {
-          method: "POST",
-          body: formData
-        });
-        const json = await res.json();
-        status.textContent = res.ok ? "✅ Enviado!" : "❌ Erro: " + json.error;
-        e.target.reset();
-        fetchFiles();
-      } catch (err) {
-        status.textContent = "❌ Erro de rede.";
+      if (files.length === 0) return;
+
+      status.textContent = "📤 A enviar " + files.length + " ficheiros...";
+
+      for (const file of files) {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("categoria", categoria);
+        try {
+          const res = await fetch(API_BASE + "/upload", {
+            method: "POST",
+            body: fd
+          });
+          const json = await res.json();
+          if (!res.ok) {
+            status.textContent = "❌ Erro com " + file.name + ": " + json.error;
+            return;
+          }
+        } catch (err) {
+          status.textContent = "❌ Erro de rede com " + file.name;
+          return;
+        }
       }
+
+      status.textContent = "✅ Enviados com sucesso!";
+      e.target.reset();
+      fetchFiles();
     });
 
     async function fetchFiles() {
@@ -129,8 +145,8 @@
       }
 
       for (const file of filtered.reverse()) {
-        const link = `https://api.telegram.org/bot8071739217:AAEvB00Ux-YK3bjr7jvLBLX14Xvv61eDxDM/getFile?file_id=${file.file_id}`;
-        const res = await fetch(link);
+        const link = `https://api.telegram.org/bot<TELEGRAM_TOKEN>/getFile?file_id=${file.file_id}`;
+        const res = await fetch(link.replace("<TELEGRAM_TOKEN>", "8071739217:AAEvB00Ux-YK3bjr7jvLBLX14Xvv61eDxDM"));
         const data = await res.json();
         const path = data.result.file_path;
         const finalURL = `https://api.telegram.org/file/bot8071739217:AAEvB00Ux-YK3bjr7jvLBLX14Xvv61eDxDM/${path}`;
