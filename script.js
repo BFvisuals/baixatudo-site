@@ -1,21 +1,34 @@
 
-// Simulação de envio com barra de progresso
-document.getElementById('uploadBtn').addEventListener('click', () => {
-  const fileInput = document.getElementById('fileInput');
-  const category = document.getElementById('category').value;
-  const progressBar = document.getElementById('progressBar');
+const uploadType = document.getElementById('uploadType');
+const fileInput = document.getElementById('fileInput');
+const textInput = document.getElementById('textInput');
+const progressBar = document.getElementById('progressBar');
 
-  if (fileInput.files.length === 0) return alert("Seleciona pelo menos um ficheiro.");
+uploadType.addEventListener('change', () => {
+  if (uploadType.value === 'file' || uploadType.value === 'torrent') {
+    fileInput.style.display = 'block';
+    textInput.style.display = 'none';
+  } else {
+    fileInput.style.display = 'none';
+    textInput.style.display = 'block';
+  }
+});
 
-  let progress = 0;
+document.getElementById('sendBtn').addEventListener('click', () => {
   progressBar.style.width = '0%';
-
+  let progress = 0;
   const interval = setInterval(() => {
     progress += 10;
     progressBar.style.width = progress + '%';
     if (progress >= 100) {
       clearInterval(interval);
-      alert("Ficheiros enviados com sucesso!");
+      alert('Enviado com sucesso!');
     }
   }, 200);
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  fileInput.value = '';
+  textInput.value = '';
+  progressBar.style.width = '0%';
 });

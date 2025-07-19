@@ -1,30 +1,54 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Baixa Tudo</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Baixa Tudo</h1>
-  <p>Partilha ficheiros até 5GB com os teus amigos!</p>
-  <div id="upload-area">
-    <input type="file" id="fileInput" multiple />
-    <select id="category">
-      <option value="videos">Vídeos</option>
-      <option value="apps">Aplicações</option>
-      <option value="jogos">Jogos</option>
-      <option value="livros">Livros</option>
-      <option value="outros">Outros</option>
-    </select>
-    <button id="uploadBtn">Enviar</button>
-    <div id="progressBar"></div>
-    <p class="note">⚠️ Máximo 5GB por ficheiro.</p>
-  </div>
-  <div id="fileList">
-    <!-- Lista de ficheiros será carregada aqui -->
-  </div>
+  <header>
+    <h1>Baixa Tudo</h1>
+    <p>Partilha ficheiros até 5GB — rápido e privado</p>
+  </header>
+
+  <main>
+    <section id="upload-section">
+      <label for="uploadType">Tipo de envio:</label>
+      <select id="uploadType">
+        <option value="file">Ficheiro</option>
+        <option value="url">Link remoto</option>
+        <option value="magnet">Magnet</option>
+        <option value="torrent">.torrent</option>
+      </select>
+
+      <div id="uploadInputs">
+        <input type="file" id="fileInput" multiple />
+        <input type="text" id="textInput" placeholder="Cola aqui o link ou magnet..." style="display:none;">
+      </div>
+
+      <label for="category">Categoria:</label>
+      <select id="category">
+        <option value="videos">Vídeos</option>
+        <option value="apps">Aplicações</option>
+        <option value="jogos">Jogos</option>
+        <option value="livros">Livros</option>
+        <option value="outros">Outros</option>
+      </select>
+
+      <div class="buttons">
+        <button id="sendBtn">Enviar</button>
+        <button id="clearBtn">Limpar</button>
+      </div>
+
+      <div id="progressBar"></div>
+      <p class="note">⚠️ Máximo 5GB por ficheiro. Magnet, torrents e links serão descarregados remotamente.</p>
+    </section>
+
+    <section id="fileList">
+      <!-- Lista de ficheiros será carregada aqui -->
+    </section>
+  </main>
+
   <script src="script.js"></script>
 </body>
 </html>
