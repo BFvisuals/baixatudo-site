@@ -1,1 +1,1 @@
-// JS code
+// JS do frontend
