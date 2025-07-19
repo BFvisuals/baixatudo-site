@@ -16,11 +16,9 @@ function updateInputs() {
   }
 }
 
-// Atualiza inputs ao mudar tipo
 uploadType.addEventListener('change', updateInputs);
 updateInputs(); // aplica na carga da página
 
-// Simulação da barra de progresso
 document.getElementById('sendBtn').addEventListener('click', () => {
   progressBar.style.width = '0%';
   let progress = 0;
