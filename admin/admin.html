@@ -1,7 +1,56 @@
 <!DOCTYPE html>
-<html>
-<head><title>Admin</title></head>
-<body>
-Admin login
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel Admin</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
+      padding: 30px;
+    }
+    .box {
+      background: #222;
+      padding: 20px;
+      margin: 10px 0;
+      border-radius: 10px;
+    }
+    input {
+      padding: 10px;
+      margin: 5px;
+      width: 220px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body onload="checkLogin()">
+  <h1>Bem-vindo ao Painel Admin 👋</h1>
+
+  <div class="box">
+    <h3>Contas MEGA Ligadas</h3>
+    <p>[Exemplo] mega1@email.com — 20GB usados</p>
+    <p>[Exemplo] mega2@email.com — 4GB livres</p>
+    <!-- Aqui pode ser atualizado com dados reais -->
+  </div>
+
+  <div class="box">
+    <h3>Adicionar Nova Conta MEGA</h3>
+    <input type="email" placeholder="Email da conta" />
+    <input type="password" placeholder="Password" />
+    <button onclick="alert('Em breve: integração com backend')">Adicionar</button>
+  </div>
+
+  <script>
+    function checkLogin() {
+      if (localStorage.getItem('admin') !== 'true') {
+        window.location.href = 'index.html';
+      }
+    }
+  </script>
 </body>
 </html>
