@@ -1,54 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <title>Painel Admin</title>
+  <meta charset="UTF-8">
+  <title>Login - Baixa Tudo Admin</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #111;
-      color: #fff;
-      padding: 30px;
-    }
-    .box {
-      background: #222;
-      padding: 20px;
-      margin: 10px 0;
-      border-radius: 10px;
+      background: #1e1e1e;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
     input {
-      padding: 10px;
-      margin: 5px;
-      width: 220px;
+      margin: 8px;
+      padding: 8px;
+      font-size: 16px;
     }
     button {
-      padding: 10px 20px;
-      margin-top: 10px;
+      padding: 8px 16px;
+      background: #3b82f6;
+      border: none;
+      color: white;
       cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    #msg {
+      margin-top: 10px;
+      color: red;
     }
   </style>
 </head>
-<body onload="checkLogin()">
-  <h1>Bem-vindo ao Painel Admin 👋</h1>
-
-  <div class="box">
-    <h3>Contas MEGA Ligadas</h3>
-    <p>[Exemplo] mega1@email.com — 20GB usados</p>
-    <p>[Exemplo] mega2@email.com — 4GB livres</p>
-    <!-- Aqui pode ser atualizado com dados reais -->
-  </div>
-
-  <div class="box">
-    <h3>Adicionar Nova Conta MEGA</h3>
-    <input type="email" placeholder="Email da conta" />
-    <input type="password" placeholder="Password" />
-    <button onclick="alert('Em breve: integração com backend')">Adicionar</button>
-  </div>
+<body>
+  <h1>Admin - Baixa Tudo</h1>
+  <input type="text" id="user" placeholder="Utilizador">
+  <input type="password" id="pass" placeholder="Senha">
+  <button type="button" onclick="login()">Entrar</button>
+  <div id="msg"></div>
 
   <script>
-    function checkLogin() {
-      if (localStorage.getItem('admin') !== 'true') {
-        window.location.href = 'index.html';
+    function login() {
+      const u = document.getElementById('user').value;
+      const p = document.getElementById('pass').value;
+      if (u === 'cotonet' && p === 'Acesnof_159') {
+        localStorage.setItem('admin', 'true');
+        window.location.href = 'painel.html';
+      } else {
+        document.getElementById('msg').innerText = 'Credenciais inválidas';
       }
     }
   </script>
