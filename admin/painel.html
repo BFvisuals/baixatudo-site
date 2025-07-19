@@ -1,54 +1,68 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <title>Painel Admin</title>
+  <meta charset="UTF-8">
+  <title>Painel Admin - Baixa Tudo</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #111;
-      color: #fff;
-      padding: 30px;
-    }
-    .box {
-      background: #222;
+      background: #f4f4f4;
       padding: 20px;
-      margin: 10px 0;
-      border-radius: 10px;
     }
-    input {
+    h1 {
+      color: #333;
+    }
+    .mega-conta {
+      margin-bottom: 15px;
       padding: 10px;
-      margin: 5px;
-      width: 220px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
     button {
-      padding: 10px 20px;
+      padding: 6px 12px;
       margin-top: 10px;
+      background: #10b981;
+      border: none;
+      color: white;
       cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #059669;
     }
   </style>
 </head>
 <body onload="checkLogin()">
-  <h1>Bem-vindo ao Painel Admin 👋</h1>
+  <h1>Painel de Administração</h1>
 
-  <div class="box">
-    <h3>Contas MEGA Ligadas</h3>
-    <p>[Exemplo] mega1@email.com — 20GB usados</p>
-    <p>[Exemplo] mega2@email.com — 4GB livres</p>
-    <!-- Aqui pode ser atualizado com dados reais -->
+  <div id="megaContas">
+    <h2>Contas MEGA Ligadas</h2>
+    <div class="mega-conta">Conta 1 - 5 GB livres</div>
+    <div class="mega-conta">Conta 2 - 0 GB livres ❌</div>
+    <!-- Este conteúdo será dinâmico numa fase posterior -->
   </div>
 
-  <div class="box">
-    <h3>Adicionar Nova Conta MEGA</h3>
-    <input type="email" placeholder="Email da conta" />
-    <input type="password" placeholder="Password" />
-    <button onclick="alert('Em breve: integração com backend')">Adicionar</button>
-  </div>
+  <h2>Adicionar Nova Conta MEGA</h2>
+  <input type="text" id="email" placeholder="Email da conta MEGA">
+  <input type="password" id="senha" placeholder="Senha da conta MEGA">
+  <button onclick="adicionarConta()">Adicionar</button>
 
   <script>
     function checkLogin() {
       if (localStorage.getItem('admin') !== 'true') {
         window.location.href = 'index.html';
+      }
+    }
+
+    function adicionarConta() {
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+      if (email && senha) {
+        alert(`Conta MEGA adicionada: ${email}`);
+        // Aqui futuramente adicionaremos a integração real com backend
+      } else {
+        alert('Por favor preencha os dois campos.');
       }
     }
   </script>
