@@ -1,4 +1,3 @@
-
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -23,7 +22,9 @@ section#upload-section {
   border-radius: 6px;
   margin-bottom: 1rem;
 }
-select, input[type="file"], input[type="text"] {
+select,
+input[type="file"],
+input[type="text"] {
   width: 100%;
   padding: 0.5rem;
   margin: 0.5rem 0;
